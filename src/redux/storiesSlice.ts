@@ -29,6 +29,9 @@ export const fetchTopStoryIds = createAsyncThunk<
 	"stories/fetchTopStoryIds",
 	async () => {
 		const response = await fetch(API_BASE_URL + "topstories.json");
+		if (!response.ok) {
+			throw new Error(`Error ${response.status} - ${response.statusText}`);
+		};
 		return response.json();
 	},
 	{
@@ -49,6 +52,11 @@ export const fetchStoriesByIds = createAsyncThunk<
 		return Promise.all(
 			storyIds.map(async storyId => {
 				const response = await fetch(API_BASE_URL + `item/${storyId}.json`);
+				if (!response.ok) {
+					throw new Error(
+						`Error ${response.status} - ${response.statusText}`
+					);
+				}
 				return response.json();
 			})
 		);
