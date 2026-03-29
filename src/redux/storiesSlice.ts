@@ -57,7 +57,11 @@ export const fetchStoriesByIds = createAsyncThunk<
 						`Error ${response.status} - ${response.statusText}`
 					);
 				}
-				return response.json();
+				const result = await response.json();
+				if (!result) {
+					throw new Error(`Story with ID ${storyId} not found`);
+				}
+				return result;
 			})
 		);
 	},
