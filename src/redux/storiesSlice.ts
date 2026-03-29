@@ -12,6 +12,8 @@ export type Story = {
 	url: string,
 }
 
+type StoryWithOptionalUrl = Omit<Story, "url"> & Partial<Pick<Story, "url">>;
+
 type StoriesState = {
 	ids: Story["id"][],
 	entities: Record<Story["id"], Story>,
@@ -57,11 +59,16 @@ export const fetchStoriesByIds = createAsyncThunk<
 						`Error ${response.status} - ${response.statusText}`
 					);
 				}
-				const result = await response.json();
+				const result: StoryWithOptionalUrl | null = await response.json();
 				if (!result) {
 					throw new Error(`Story with ID ${storyId} not found`);
 				}
-				return result;
+				return {
+					...result,
+					url:
+						result.url ||
+						`https://news.ycombinator.com/item?id=${result.id}`,
+				};
 			})
 		);
 	},
