@@ -1,5 +1,7 @@
 # React + TypeScript + Redux Toolkit + Vite
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2d14f0ec-0a88-4b12-9d77-b0630f7e5304/deploy-status)](https://app.netlify.com/projects/hackernews-rtk-thunk/deploys)
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
