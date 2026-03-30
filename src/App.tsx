@@ -3,9 +3,10 @@ import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import {
 	fetchStoriesByIds,
 	fetchTopStoryIds,
-	type Story
+	type Story as StoryType
 } from "./redux/storiesSlice";
 import Pagination from "./components/Pagination";
+import Story from "./components/Story";
 
 const STORIES_PER_PAGE = 10;
 const PAGE_PARAM = "page";
@@ -67,7 +68,7 @@ function App() {
 	}, [dispatch, ids, page]);
 
 	const storiesForPage = getStoryIdsForPage(ids, page)
-		.map((id): Story | undefined => entities[id])
+		.map((id): StoryType | undefined => entities[id])
 		.filter(story => story !== undefined);
 
 	let content: ReactNode;
@@ -79,18 +80,20 @@ function App() {
 	} else {
 		content = (
 			<div>
-				<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-					{storiesForPage.map(story => (
-						<div key={story.id}>
-							<a href={story.url} target="_blank">{story.title}</a>
-						</div>
+				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+					{storiesForPage.map((story, storyIndex) => (
+						<Story
+							key={story.id}
+							story={story}
+							rank={(page - 1) * STORIES_PER_PAGE + (storyIndex + 1)}	
+						/>
 					))}
 				</div>
 				<div
 					style={{
 						display: "flex",
 						justifyContent: "center",
-						marginTop: 16
+						marginTop: 24
 					}}
 				>
 					<Pagination

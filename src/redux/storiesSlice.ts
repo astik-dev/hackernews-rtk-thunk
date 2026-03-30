@@ -2,17 +2,15 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export type Story = {
 	by: string,
-	descendants: number,
 	id: number,
-	kids: number[],
 	score: number,
 	time: number,
 	title: string,
 	type: string,
-	url: string,
+	url?: string,
+	descendants?: number,
+	kids?: number[],
 }
-
-type StoryWithOptionalUrl = Omit<Story, "url"> & Partial<Pick<Story, "url">>;
 
 type StoriesState = {
 	ids: Story["id"][],
@@ -59,16 +57,11 @@ export const fetchStoriesByIds = createAsyncThunk<
 						`Error ${response.status} - ${response.statusText}`
 					);
 				}
-				const result: StoryWithOptionalUrl | null = await response.json();
+				const result = await response.json();
 				if (!result) {
 					throw new Error(`Story with ID ${storyId} not found`);
 				}
-				return {
-					...result,
-					url:
-						result.url ||
-						`https://news.ycombinator.com/item?id=${result.id}`,
-				};
+				return result;
 			})
 		);
 	},
