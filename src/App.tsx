@@ -8,7 +8,7 @@ import {
 import Pagination from "./components/Pagination";
 import Story from "./components/Story";
 
-const STORIES_PER_PAGE = 10;
+const STORIES_PER_PAGE = 20;
 const PAGE_PARAM = "page";
 
 function getPageParamValue(): number {
