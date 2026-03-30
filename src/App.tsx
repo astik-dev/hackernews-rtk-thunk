@@ -106,7 +106,7 @@ function App() {
 	}
 
 	return (
-		<div style={{ maxWidth: "700px", margin: "0 auto" }}>
+		<div style={{ maxWidth: "700px", margin: "0 auto", paddingBottom: 24 }}>
 			<h1>Hacker News</h1>
 			{content}
 		</div>
