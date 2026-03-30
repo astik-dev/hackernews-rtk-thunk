@@ -107,7 +107,12 @@ function App() {
 
 	return (
 		<div style={{ maxWidth: "700px", margin: "0 auto", paddingBottom: 24 }}>
-			<h1>Hacker News</h1>
+			<h1
+				style={{ cursor: loading ? undefined : "pointer" }}
+				onClick={loading ? undefined : () => setPage(1)}
+			>
+				Hacker News
+			</h1>
 			{content}
 		</div>
 	);
