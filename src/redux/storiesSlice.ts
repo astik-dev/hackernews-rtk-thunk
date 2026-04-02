@@ -1,5 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+export const STORY_FEED_TYPES = [ "top" , "best" , "new" ] as const;
+
+export type StoryFeedType = (typeof STORY_FEED_TYPES)[number];
+
 export type Story = {
 	by: string,
 	id: number,
@@ -15,29 +19,31 @@ export type Story = {
 type StoriesState = {
 	ids: Story["id"][],
 	entities: Record<Story["id"], Story>,
+	feedType: StoryFeedType | null,
 	loading: boolean,
 	error: string | null,
 }
 
 const API_BASE_URL = "https://hacker-news.firebaseio.com/v0/";
 
-export const fetchTopStoryIds = createAsyncThunk<
-	Story["id"][],
-	void,
+export const fetchStoryIds = createAsyncThunk<
+	{ ids: Story["id"][], feedType: StoryFeedType },
+	StoryFeedType,
 	{ state: { stories: StoriesState } }
 >(
 	"stories/fetchTopStoryIds",
-	async () => {
-		const response = await fetch(API_BASE_URL + "topstories.json");
+	async (feedType) => {
+		const response = await fetch(API_BASE_URL + feedType + "stories.json");
 		if (!response.ok) {
 			throw new Error(`Error ${response.status} - ${response.statusText}`);
 		};
-		return response.json();
+		const ids: Story["id"][] = await response.json();
+		return { ids, feedType };
 	},
 	{
-		condition: (_, { getState }) => {
-			const { loading } = getState().stories;
-			if (loading) return false;
+		condition: (feedType, { getState }) => {
+			const { loading, feedType: currentFeedType } = getState().stories;
+			if (loading || currentFeedType === feedType) return false;
 		}
 	}
 );
@@ -48,9 +54,10 @@ export const fetchStoriesByIds = createAsyncThunk<
 	{ state: { stories: StoriesState } }
 >(
 	"stories/fetchStoriesByIds",
-	async (storyIds) => {
+	async (storyIds, { getState }) => {
+		const { stories } = getState();
 		return Promise.all(
-			storyIds.map(async storyId => {
+			storyIds.filter(id => !stories.entities[id]).map(async storyId => {
 				const response = await fetch(API_BASE_URL + `item/${storyId}.json`);
 				if (!response.ok) {
 					throw new Error(
@@ -77,6 +84,7 @@ export const fetchStoriesByIds = createAsyncThunk<
 const initialState: StoriesState = {
 	ids: [],
 	entities: {},
+	feedType: null,
 	loading: false,
 	error: null,
 }
@@ -87,14 +95,15 @@ const storiesSlice = createSlice({
 	reducers: {},
 	extraReducers: builder => {
 
-		builder.addCase(fetchTopStoryIds.pending, state => {
+		builder.addCase(fetchStoryIds.pending, state => {
 			state.loading = true;
 		});
-		builder.addCase(fetchTopStoryIds.fulfilled, (state, { payload }) => {
+		builder.addCase(fetchStoryIds.fulfilled, (state, { payload }) => {
 			state.loading = false;
-			state.ids = payload;
+			state.ids = payload.ids;
+			state.feedType = payload.feedType;
 		});
-		builder.addCase(fetchTopStoryIds.rejected, (state, { error }) => {
+		builder.addCase(fetchStoryIds.rejected, (state, { error }) => {
 			state.loading = false;
 			state.error = error.message ?? "Error!";
 		});
